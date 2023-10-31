@@ -8,7 +8,7 @@ type SocketContextType = {
   isConnected: boolean;
 };
 
-const SocketContext = createContext<SocketContext>({
+const SocketContext = createContext<SocketContextType>({
   socket: null,
   isConnected: false,
 });
@@ -29,9 +29,11 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
         addTrailingSlash: false,
       },
     );
+
     socketInstance.on("connect", () => {
       setIsConnected(true);
     });
+
     socketInstance.on("disconnect", () => {
       setIsConnected(false);
     });

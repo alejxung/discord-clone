@@ -10,10 +10,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useModal } from "@/hooks/use-modal-store";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { useOrigin } from "@/hooks/use-origin";
 
 export const InviteModal = () => {
@@ -43,6 +43,7 @@ export const InviteModal = () => {
       const response = await axios.patch(
         `/api/servers/${server?.id}/invite-code`,
       );
+
       onOpen("invite", { server: response.data });
     } catch (error) {
       console.log(error);
@@ -61,7 +62,7 @@ export const InviteModal = () => {
         </DialogHeader>
         <div className="p-6">
           <Label className="uppercase text-xs font-bold text-zinc-500 dark:text-secondary/70">
-            Server Invite Link
+            Server invite link
           </Label>
           <div className="flex items-center mt-2 gap-x-2">
             <Input

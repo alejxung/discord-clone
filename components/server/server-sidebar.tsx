@@ -105,7 +105,7 @@ export const ServerSidebar = async ({ serverId }: ServerSidebarProps) => {
                 })),
               },
               {
-                label: "Voice Channels",
+                label: "Video Channels",
                 type: "channel",
                 data: videoChannels?.map((channel) => ({
                   id: channel.id,

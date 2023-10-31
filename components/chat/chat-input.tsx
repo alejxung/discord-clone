@@ -26,6 +26,8 @@ const formSchema = z.object({
 
 export const ChatInput = ({ apiUrl, query, name, type }: ChatInputProps) => {
   const { onOpen } = useModal();
+  const router = useRouter();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -79,7 +81,7 @@ export const ChatInput = ({ apiUrl, query, name, type }: ChatInputProps) => {
                   <div className="absolute top-7 right-8">
                     <EmojiPicker
                       onChange={(emoji: string) =>
-                        field.onChange(`${field.value}${emoji}`)
+                        field.onChange(`${field.value} ${emoji}`)
                       }
                     />
                   </div>

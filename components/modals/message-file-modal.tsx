@@ -83,7 +83,7 @@ export const MessageFileModal = () => {
             <div className="space-y-8 px-6">
               <div className="flex items-center justify-center text-center">
                 <FormField
-                  contorl={form.control}
+                  control={form.control}
                   name="fileUrl"
                   render={({ field }) => (
                     <FormItem>

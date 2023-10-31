@@ -1,55 +1,81 @@
 import { NextResponse } from "next/server";
-import { MemberRole } from "@prisma/client";
+import { DirectMessage } from "@prisma/client";
 
 import { currentProfile } from "@/lib/current-profile";
 import { db } from "@/lib/db";
 
-export async function POST(req: Request) {
+const MESSAGES_BATCH = 10;
+
+export async function GET(req: Request) {
   try {
     const profile = await currentProfile();
-    const { name, type } = await req.json();
     const { searchParams } = new URL(req.url);
 
-    const serverId = searchParams.get("serverId");
+    const cursor = searchParams.get("cursor");
+    const conversationId = searchParams.get("conversationId");
 
     if (!profile) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    if (!serverId) {
-      return new NextResponse("Server ID missing", { status: 400 });
+    if (!conversationId) {
+      return new NextResponse("Conversation ID missing", { status: 400 });
     }
 
-    if (name === "general") {
-      return new NextResponse("Name cannot be 'general'", { status: 400 });
-    }
+    let messages: DirectMessage[] = [];
 
-    const server = await db.server.update({
-      where: {
-        id: serverId,
-        members: {
-          some: {
-            profileId: profile.id,
-            role: {
-              in: [MemberRole.ADMIN, MemberRole.MODERATOR],
+    if (cursor) {
+      messages = await db.directMessage.findMany({
+        take: MESSAGES_BATCH,
+        skip: 1,
+        cursor: {
+          id: cursor,
+        },
+        where: {
+          conversationId,
+        },
+        include: {
+          member: {
+            include: {
+              profile: true,
             },
           },
         },
-      },
-      data: {
-        channels: {
-          create: {
-            profileId: profile.id,
-            name,
-            type,
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+    } else {
+      messages = await db.directMessage.findMany({
+        take: MESSAGES_BATCH,
+        where: {
+          conversationId,
+        },
+        include: {
+          member: {
+            include: {
+              profile: true,
+            },
           },
         },
-      },
-    });
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+    }
 
-    return NextResponse.json(server);
+    let nextCursor = null;
+
+    if (messages.length === MESSAGES_BATCH) {
+      nextCursor = messages[MESSAGES_BATCH - 1].id;
+    }
+
+    return NextResponse.json({
+      items: messages,
+      nextCursor,
+    });
   } catch (error) {
-    console.log("CHANNELS_POST", error);
+    console.log("[DIRECT_MESSAGES_GET]", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }

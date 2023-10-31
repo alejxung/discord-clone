@@ -30,7 +30,9 @@ export const DeleteChannelModal = () => {
       setIsLoading(true);
       const url = qs.stringifyUrl({
         url: `/api/channels/${channel?.id}`,
-        query: { serverId: server?.id },
+        query: {
+          serverId: server?.id,
+        },
       });
 
       await axios.delete(url);
